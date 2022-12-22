@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crud Operation</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="https://cdn-icons-png.flaticon.com/512/6946/6946547.png">
+<style>
+*
+{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+body
+{
+    font-family: cursive;
+}
+.wrapper
+{
+    min-height: 100vh;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+#crud 
+{
+    width: 90%;
+    
+    text-align: center;
+}
+#crud caption
+{
+    background-color: #009688;
+    color: #fff;
+    padding: 10px 0;
+    font-size: 1.5rem;
+}
+#crud thead
+{
+    background-color:aliceblue;
+   
+}
+#crud thead td
+{
+    padding: 10px;
+    color: #009688;
+}
+#crud tbody td
+{
+    padding: 10px;
+    border-bottom: 1px solid #009688;
+    color: #666565;
+}
+#crud tbody td button,.add-user
+{
+    padding: 5px 7px;
+    border:none;
+    background: transparent;
+    font-family: cursive;
+    font-size: .9rem;
+    color: #fff;
+    border-radius: 3px;
+    cursor: pointer;
+}
+#crud tbody td button.edit
+{
+    background-color:#009688;
+}
+#crud tbody td button.delete
+{
+    background-color:#e91e63;
+}
+.add-user
+{
+    background-color: #009688;
+   margin-top: 20px;
+   padding: 10px 20px;
+}
+.popup
+{
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0,0, 0,.4);
+    display:none ;
+    place-items: center;
+}
+.popup.active
+{
+    display: grid;
+    animation: show .7s ease-in-out;
+}
+@keyframes show
+{   0%
+    {
+        transform: translateY(-100%);
+    }
+    100%
+    {
+        transform: translateY(0);
+    }
+}
+.popup form
+{
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    max-width: 350px;
+    width: 100%;
+    padding: 50px 20px;
+    
+}
+.popup form input
+{
+    width: 100%;
+    background-color: transparent;
+    border:none;
+    box-shadow: inset 0 0 2px rgba(0,0, 0,.4);
+    margin: 15px 0;
+    padding: 12px 15px;
+    font-size: 1.1rem;
+    font-family: cursive;
+   
+}
+.popup form input[type = "submit"]
+{
+    background-color: #009688;
+    color: #fff;
+    cursor: pointer;
+    max-width: 100px;
+}
+</style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <table id="crud">
+            <caption>Users</caption>
+            <thead>
+                <tr>
+                    <td>Name</td>
+                    <td>Phone</td>
+                    <td>Email</td>
+                    <td>Actions</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        <button class="edit">Edit</button>
+                        <button class="delete">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <button class="add-user">Add User</button>
+    </div>
+    <div class="popup add">
+        <form action="">
+            <input type="text" placeholder="name" name="name">
+            <input type="tel" placeholder="phone" name="phone">
+            <input type="email" placeholder="email" name="email">
+            <input type="submit" value="submit" >
+        </form>
+    </div>
+
+    <div class="popup update">
+        <form action="">
+            <input type="text" placeholder="name" name="name">
+            <input type="tel" placeholder="phone" name="phone">
+            <input type="email" placeholder="email" name="email">
+            <input type="submit" value="submit" >
+        </form>
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.9.1/firebase-database.js"></script>
+
+
+    <script>
+    var firebaseConfig = {
+    apiKey: "AIzaSyANbgo8c0rbSdjZu8UORbeL06iIIT6rx7w",
+    authDomain: "fir-b86f6.firebaseapp.com",
+    databaseURL: "https://fir-b86f6-default-rtdb.firebaseio.com",
+    projectId: "fir-b86f6",
+    storageBucket: "fir-b86f6.appspot.com",
+    messagingSenderId: "786526910108",
+    appId: "1:786526910108:web:c377e78349b93b7190df59"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+    let tableBody = document.querySelector("tbody");
+let addUser = document.querySelector(".add-user"),
+    popup = document.querySelector(".popup"),
+    addForm = document.querySelector(".add form")
+    ,
+    updateForm = document.querySelector(".update form");
+var database = firebase.database();
+var usersRef = firebase.database().ref('users/');
+
+
+function writeUserData(name, phone, email) {
+    let userId = usersRef.push().key;
+    usersRef.child(userId).set({
+        name: name,
+        phone: phone,
+        email: email,
+       
+    }).then((onFullFilled)=>{
+        console.log("writed");
+    }, (onRejected)=>{
+        console.log(onRejected);
+    })
+}
+/*writeUserData(1, "mico", "1234567", "email@gmail.com") */
+/*writeUserData("Steven", "2022-3213", "   steven@gmail.com")  */
+/*writeUserData("beverly", "2022-9786", "   beverly@gmail.com")  */
+ 
+
+  
+usersRef.on('value', (snapshot) => {
+    const users = snapshot.val(); 
+     tableBody.innerHTML = "";
+    for (user in users)
+    {
+     /*   console.log(users[user]);    */
+        let tr = ` 
+          <tr data-id =${user}>
+                    <td>${users[user].name}</td>
+                    <td>${users[user].phone}</td>
+                    <td>${users[user].email}</td>
+                    <td>
+                        <button class="edit">Edit</button>
+                        <button class="delete">Delete</button>
+                    </td>
+                </tr>
+        ` 
+        tableBody.innerHTML += tr;
+    }
+    let editButtons = document.querySelectorAll(".edit");
+    editButtons.forEach(edit=>{
+        edit.addEventListener("click",()=>{
+            document.querySelector(".update").classList.add("active");
+            let userId = edit.parentElement.parentElement.
+                dataset.id;
+             usersRef.child(userId).get().then((snapshot =>{
+                /*console.log(snapshot.val());*/
+                updateForm.name.value = snapshot.val().name;
+                updateForm.phone.value = snapshot.val().phone;
+                updateForm.email.value = snapshot.val().email;  
+             }))
+            updateForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+                  usersRef.child(userId).update({
+                  name: updateForm.name.value,
+                  phone:  updateForm.phone.value,
+                  email:  updateForm.email.value, 
+                 }).then((onFullFilled)=>{
+                     alert("updated")
+                       document.querySelector(".update").classList.remove("active");
+                      updateForm.reset()
+                }, (onRejected)=>{
+                  console.log(onRejected);
+              })
+            })
+        })
+    })
+    let deletButtons = document.querySelectorAll(".delete");
+    deletButtons.forEach(deleteBtn => {
+        deleteBtn.addEventListener("click", () => {
+            let userId = deleteBtn.parentElement.
+                parentElement.dataset.id;
+            usersRef.child(userId).remove().then(() => {
+                alert("deleted"); 
+            })
+        })
+    })
+
+});
+
+
+addUser.addEventListener("click", () => {
+    document.querySelector(".add").classList.add("active");
+    addForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        writeUserData(
+            addForm.name.value,
+            addForm.phone.value,
+            addForm.email.value)
+        
+    })
+})
+window.addEventListener("click", (e)=>{
+    if (e.target == popup)
+    {
+        popup.classList.remove("active");
+        addForm.reset()
+        updateForm.reset()
+        
+    }
+})
+
+
+  </script>
+  
+</body>
+</html>
